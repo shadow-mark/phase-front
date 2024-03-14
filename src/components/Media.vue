@@ -34,6 +34,7 @@
         </div>
         <audio @timeupdate="mediaStore.timeupdate" @canplay="mediaStore.canplay" @pause="mediaStore.paused = true"
             @play="mediaStore.paused = false" @ended="mediaStore.overAudio" ref="media" />
+        <ResourceMarkDialog />
     </div>
 </template>
 
@@ -41,6 +42,7 @@
 import { useMediaStore } from "../stores/mediaStore"
 
 import Cover from '@/components/Cover.vue';
+import ResourceMarkDialog from "./resource/ResourceMarkDialog.vue";
 
 export default {
     setup() {
@@ -52,7 +54,7 @@ export default {
             this.mediaStore.findMediaView(this.$refs.media)
         })
     },
-    components: { Cover }
+    components: { Cover, ResourceMarkDialog }
 }
 </script>
 

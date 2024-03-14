@@ -15,16 +15,20 @@ import WebImg from '@/components/WebImg.vue';
                         <div class="title_text">{{ item.title }}</div>
                     </div>
                 </div>
-                <div class="option_box">
-                    <DropDown ref="drop" closeAfterSelection>
-                        <template #text>
-                            <div class="option_img"></div>
-                        </template>
-                        <template #extend>
-                            <ResourceMenu class="menu" :resource="item" :index="index" v-bind="$attrs" />
-                        </template>
-                    </DropDown>
+                <div class="space"></div>
+                <div class="add_box" @click="openDialog">
+                    <div v-if="loading" class="img loading"></div>
+                    <div v-else-if="selected.length === 0" class="img add_img"></div>
+                    <div v-else class="img done_img"></div>
                 </div>
+                <DropDown class="option_box" ref="option" closeAfterSelection>
+                    <template #text>
+                        <div class="img option_img"></div>
+                    </template>
+                    <template #extend>
+                        <ResourceMenu class="option_menu" :resource="item" :index="index" v-bind="$attrs" />
+                    </template>
+                </DropDown>
             </div>
         </template>
         <template #menu>
@@ -35,15 +39,47 @@ import WebImg from '@/components/WebImg.vue';
 </template>
 
 <script>
+import { useStateStore } from "../../stores/stateStore";
+
 import Cover from "@/components/Cover.vue"
 import DropDown from '@/components/DropDown.vue';
 import ResourceMenu from '@/components/resource/ResourceMenu.vue'
 import ContextMenu from '@/components/menu/ContextMenu.vue';
 
 export default {
+    setup() {
+        const stateStore = useStateStore()
+        return { stateStore }
+    },
     props: {
         item: {},
-        index: 0
+        index: 0,
+        visible: false
+    },
+    mounted() {
+        this.loading = true
+        this.observer = new IntersectionObserver((entries) => {
+            if (entries[0].intersectionRatio <= 0) return
+            this.$axios({
+                url: `/collection/have/${this.item.id}`
+            }).then((res) => {
+                if (res.data.status) {
+                    this.selected = res.data.data
+                }
+                this.loading = false
+            })
+        })
+        this.observer.observe(this.$refs.menu.$el)
+    },
+    beforeUnmount() {
+        this.observer && this.observer.unobserve(this.$refs.menu.$el)
+    },
+    data() {
+        return {
+            observer: Object,
+            selected: [],
+            loading: false
+        }
     },
     computed: {
         img() {
@@ -67,7 +103,24 @@ export default {
             }
         },
         focus() {
-            return this.$refs.menu.realTextFocus || this.$refs.drop.realTextFocus
+            return this.$refs.menu.realTextFocus || this.$refs.option.realTextFocus
+        }
+    },
+    methods: {
+        openDialog() {
+            this.stateStore.setResourceMarkDialogCallback((res) => {
+                for (let i = 0; i < res.length; i++) {
+                    if (!res[i].status) {
+                        let index = this.selected.findIndex((it) => it === res[i].id)
+                        this.selected.splice(index, 1)
+                    } else {
+                        this.selected.push(res[i].id)
+                    }
+                }
+            })
+            this.stateStore.setResourceMarkDialogItem(this.item)
+            this.stateStore.setResourceMarkDialogSelected(this.selected)
+            this.stateStore.openResourceMarkDialog()
         }
     },
     components: { Cover, DropDown, ResourceMenu, ContextMenu }
@@ -89,7 +142,7 @@ export default {
     display: flex;
 }
 
-#resource_item_content:hover .option_img {
+#resource_item_content:hover .img {
     display: flex;
 }
 
@@ -130,27 +183,78 @@ export default {
     margin-left: .5rem;
 }
 
-.option_box {
-    display: flex;
-    height: 4rem;
-    width: 2.5rem;
+.space {
     margin-left: auto;
 }
 
-.option_img {
-    display: none;
-    margin: auto;
+.add_box,
+.option_box {
+    display: flex;
+    height: 4rem;
+}
+
+.add_box {
     width: 2rem;
-    height: 2rem;
-    background-image: url(@/assets/ic_options_horizontal.svg);
+}
+
+.option_box {
+    width: 2.5rem;
+}
+
+.loading {
+    margin: auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 3px solid #000;
+    border-top-color: transparent;
+    border-radius: 100%;
+    animation: circle infinite 0.75s linear;
+}
+
+@keyframes circle {
+    0% {
+        transform: rotate(0);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.img {
+    display: v-bind("focus ? 'flex' : 'none'");
+    margin: auto;
     background-size: contain;
     background-repeat: no-repeat;
     cursor: pointer;
 }
 
-.menu {
+.add_img {
+    width: 1.15rem;
+    height: 1.15rem;
+    background-image: url(@/assets/ic_resource_add.svg);
+}
+
+.done_img {
+    width: 1rem;
+    height: 1rem;
+    background-image: url(@/assets/ic_resource_done.svg);
+}
+
+.option_img {
+    width: 1.5rem;
+    height: 1.5rem;
+    background-image: url(@/assets/ic_options_horizontal.svg);
+}
+
+.mark_menu {
     position: absolute;
-    top: -.75rem;
-    right: 0;
+    right: 5rem;
+}
+
+.option_menu {
+    position: absolute;
+    top: 3rem;
+    right: .25rem;
 }
 </style>

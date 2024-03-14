@@ -21,7 +21,7 @@
             <div class="file_show_box" v-if="checkIndex !== -1">
                 <img v-if="item.type === 1 && files[checkIndex].filename"
                     :src="`${$axios.defaults.baseURL}/file/${item.id}/download/${files[checkIndex].filename}`" />
-                <audio v-else-if="item.type === 2"
+                <audio ref="media" v-else-if="item.type === 2"
                     :src="`${$axios.defaults.baseURL}/file/${item.id}/download/${files[checkIndex].filename}`"
                     controls></audio>
                 <Button class="remove_btn" @click="remove" :loading="removeLoading">
@@ -120,6 +120,11 @@ export default {
             this.checkIndex = -1
             this.init()
         },
+        visible(newVal) {
+            if (!newVal && this.$refs.media) {
+                this.$refs.media.pause()
+            }
+        }
     },
     components: { Dialog, Card, ResourceUploadItem, Button, WebImg }
 }

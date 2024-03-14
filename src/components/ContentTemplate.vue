@@ -11,7 +11,9 @@
             <teleport to='.hud_option_extend'>
                 <slot name="option"></slot>
             </teleport>
-            <slot name="content"></slot>
+            <div id="content">
+                <slot name="content"></slot>
+            </div>
         </div>
     </div>
 </template>
@@ -80,6 +82,10 @@ export default {
 
 .interval {
     padding: 0rem 1.5rem
+}
+
+#content {
+    padding: 0 1rem;
 }
 
 #detail_box {

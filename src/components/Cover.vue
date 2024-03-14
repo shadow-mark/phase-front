@@ -14,16 +14,21 @@ export default {
     props: {
         src: "",
         position: {
-            size: 100,
-            x: 0,
-            y: 0
+            type: Object,
+            default: {
+                size: 100,
+                x: 0,
+                y: 0
+            }
         },
-        alt: "cover"
+        alt: "cover",
     },
     mounted() {
         this.$nextTick(() => {
             if (this.$refs.img) {
-                this.fontSize = this.$refs.img.offsetHeight * 0.035 + "rem"
+                let height = this.$refs.img.offsetHeight
+                if (height === 0) return
+                this.fontSize = height * 0.035 + "rem"
             }
         })
     },

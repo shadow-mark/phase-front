@@ -16,12 +16,10 @@
         </template>
 
         <template #content>
-            <div class="content">
-                <div @click="create">创建</div>
-                <div>
-                    <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item"
-                        @edit="edit" @remove="remove" @upload="upload" />
-                </div>
+            <div @click="create">创建</div>
+            <div>
+                <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
+                    @remove="remove" @upload="upload" />
             </div>
             <ResourceEditDialog :item="resource" :visible="editVisible" @clickMaskListen="close" @save="save" />
             <ResourceUploadDialog :item="resource" :visible="uploadVisible" @clickMaskListen="close" @save="save" />
@@ -137,9 +135,5 @@ export default {
     margin-bottom: 1rem;
     margin-top: -.5rem;
     word-break: break-word;
-}
-
-.content {
-    padding: 0 1rem;
 }
 </style>

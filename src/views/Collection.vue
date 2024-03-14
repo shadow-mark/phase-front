@@ -2,24 +2,22 @@
     <ContentTemplate :loading="loading">
         <template #head>
             <!-- {{ collection }} -->
-            <ImageEdit class="img_edit" :item="item" caculation :edit="edit"
-                @checkFile="checkFile" />
+            <ImageEdit class="img_edit" :item="item" caculation :edit="edit" @checkFile="checkFile" />
             <div id="detail_box">
                 <div class="detail_title">播放清单</div>
                 <div class="detail_username" @click="openDialog">{{ collection.title }}</div>
                 <div class="detail_other">受{{ collection.followCount }}人关注
                 </div>
             </div>
-            <ItemEditDialog v-if="edit" :visible="visible" :item="itemTemp" :loading="updateLoading" @clickMaskListen="closeDialog"
-                @checkFile="checkFile" @save="save" />
+            <ItemEditDialog v-if="edit" :visible="visible" :item="itemTemp" :loading="updateLoading"
+                @clickMaskListen="closeDialog" @checkFile="checkFile" @save="save" />
         </template>
         <template #option>
             {{ id }}
         </template>
         <template #content>
-            <div>
-                111
-            </div>
+            <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
+                @remove="remove" @upload="upload" />
         </template>
     </ContentTemplate>
 </template>
@@ -31,6 +29,7 @@ import { useStateStore } from '@/stores/stateStore'
 import ContentTemplate from '@/components/ContentTemplate.vue';
 import ImageEdit from '@/components/edit/ImageEdit.vue';
 import ItemEditDialog from '@/components/dialog/ItemEditDialog.vue'
+import ResourceItem from '@/components/resource/ResourceItem.vue'
 
 export default {
     setup() {
@@ -40,15 +39,18 @@ export default {
     },
     mounted() {
         this.visit()
+        this.getResources()
     },
     beforeRouteUpdate(to, from) {
         this.id = to.params.id
         this.visit()
+        this.getResources()
     },
     data() {
         return {
             id: this.$route.params.id,
             collection: {},
+            resources: [],
             itemTemp: {},
             visible: false,
             loading: true,
@@ -84,6 +86,15 @@ export default {
                 if (res.data.status) {
                     this.collection = res.data.data
                     this.loading = false
+                }
+            })
+        },
+        getResources() {
+            this.$axios({
+                url: `/collection/get/${this.id}/resource`
+            }).then(res => {
+                if (res.data.status) {
+                    this.resources = res.data.data
                 }
             })
         },
@@ -164,7 +175,7 @@ export default {
             this.closeDialog()
         }
     },
-    components: { ContentTemplate, ImageEdit, ItemEditDialog }
+    components: { ContentTemplate, ImageEdit, ItemEditDialog, ResourceItem }
 }
 </script>
 
