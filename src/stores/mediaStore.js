@@ -1,6 +1,8 @@
 import { ref, computed } from "vue";
 import { defineStore } from "pinia";
 
+import { getPosition } from "../utils/Position";
+
 export const useMediaStore = defineStore("media", {
     state: () => ({
         axios: Object,
@@ -132,6 +134,7 @@ export const useMediaStore = defineStore("media", {
                 : undefined;
         },
         position() {
+            return getPosition(this.nowMedia.cover)
             let position = [100, 0, 0];
             let media = this.nowMedia;
             if (media.cover && media.cover != "") {

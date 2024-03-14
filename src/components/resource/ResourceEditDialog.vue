@@ -31,7 +31,6 @@ import EditText from "@/components/edit/EditText.vue";
 import Button from "@/components/Button.vue";
 import DropDownSelect from "@/components/DropDownSelect.vue";
 import ImageEdit from "@/components/edit/ImageEdit.vue"
-import ItemEditDialog from '@/components/dialog/ItemEditDialog.vue';
 
 export default {
     props: {

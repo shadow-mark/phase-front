@@ -1,6 +1,6 @@
 import WebImg from '@/components/WebImg.vue';
 <template>
-    <ContextMenu class="test" ref="menu">
+    <ContextMenu class="test" ref="menu" v-show="!loading && selected.length !== 0 || isUpload || loading">
         <template #text>
             <div id="resource_item_content">
                 <div class="masking"></div>
@@ -26,13 +26,14 @@ import WebImg from '@/components/WebImg.vue';
                         <div class="img option_img"></div>
                     </template>
                     <template #extend>
-                        <ResourceMenu class="option_menu" :resource="item" :index="index" v-bind="$attrs" />
+                        <ResourceMenu class="option_menu" :resource="item" :index="index" :isUpload="isUpload"
+                            v-bind="$attrs" @mark="mark" />
                     </template>
                 </DropDown>
             </div>
         </template>
         <template #menu>
-            <ResourceMenu :resource="item" :index="index" v-bind="$attrs" />
+            <ResourceMenu :resource="item" :index="index" :isUpload="isUpload" v-bind="$attrs" @mark="mark"/>
         </template>
     </ContextMenu>
 
@@ -54,7 +55,10 @@ export default {
     props: {
         item: {},
         index: 0,
-        visible: false
+        isUpload: {
+            type: Boolean,
+            default: false
+        }
     },
     mounted() {
         this.loading = true
@@ -78,7 +82,7 @@ export default {
         return {
             observer: Object,
             selected: [],
-            loading: false
+            loading: true
         }
     },
     computed: {
@@ -121,6 +125,9 @@ export default {
             this.stateStore.setResourceMarkDialogItem(this.item)
             this.stateStore.setResourceMarkDialogSelected(this.selected)
             this.stateStore.openResourceMarkDialog()
+        },
+        mark() {
+            this.openDialog()
         }
     },
     components: { Cover, DropDown, ResourceMenu, ContextMenu }

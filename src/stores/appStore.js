@@ -67,9 +67,23 @@ export const useAppStore = defineStore("app", {
                 }
             });
         },
+        createCollection() {
+            this.axios({
+                url: "/collection/generate"
+            }).then((res) => {
+                if (res.data.status) {
+                    let result = res.data.data
+                    this.addLibrary({
+                        type: "collection",
+                        id: result.id,
+                        title: result.title,
+                    })
+                }
+            })
+        },
         addCollection(value) {
             let index = this.collections.findIndex((it) => it.id === value.id);
-            if (index === -1) {
+            if (index !== -1) {
                 this.collections[index] = value;
             } else {
                 this.collections.push(value);

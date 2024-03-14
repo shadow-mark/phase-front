@@ -16,6 +16,7 @@
                 </div>
                 <div class="data_box" v-else>
                     <EditText class="edit_text" v-model="item.text" placeholder="标题" />
+                    <DropDownSelect class="select" v-model="item.level" :options="levelOptions" placeholder="隐私" />
                     <Button @click="save" :loading="loading">
                         储存
                     </Button>
@@ -35,6 +36,7 @@ import EditText from '@/components/edit/EditText.vue';
 import ContextMenu from '@/components/menu/ContextMenu.vue'
 import Dialog from '@/components/dialog/Dialog.vue';
 import Button from '@/components/Button.vue';
+import DropDownSelect from "@/components/DropDownSelect.vue";
 
 export default {
     setup() {
@@ -54,6 +56,21 @@ export default {
         }
     },
     emits: ["save", "checkFile"],
+    data() {
+        return {
+            levelOptions: [
+                {
+                    text: "私有",
+                },
+                {
+                    text: "好友",
+                },
+                {
+                    text: "公开",
+                }
+            ],
+        }
+    },
     methods: {
         save() {
             this.$emit("save")
@@ -62,7 +79,7 @@ export default {
             this.$emit("checkFile", file)
         }
     },
-    components: { ImageEdit, Card, EditText, ContextMenu, Dialog, Button }
+    components: { ImageEdit, Card, EditText, ContextMenu, Dialog, Button, DropDownSelect }
 }
 </script>
 

@@ -1,7 +1,6 @@
 <template>
     <ContentTemplate :loading="loading">
         <template #head>
-            <!-- {{ collection }} -->
             <ImageEdit class="img_edit" :item="item" caculation :edit="edit" @checkFile="checkFile" />
             <div id="detail_box">
                 <div class="detail_title">播放清单</div>
@@ -16,8 +15,7 @@
             {{ id }}
         </template>
         <template #content>
-            <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
-                @remove="remove" @upload="upload" />
+            <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" />
         </template>
     </ContentTemplate>
 </template>
@@ -42,6 +40,7 @@ export default {
         this.getResources()
     },
     beforeRouteUpdate(to, from) {
+        this.resources = {}
         this.id = to.params.id
         this.visit()
         this.getResources()
@@ -65,7 +64,8 @@ export default {
                 id: this.collection.id,
                 text: this.collection.title,
                 img: this.getImageUrl(this.collection.id, this.collection.cover),
-                position: this.getImagePosition(this.collection.cover)
+                position: this.getImagePosition(this.collection.cover),
+                level: this.collection.level
             }
         },
         edit() {
@@ -98,9 +98,9 @@ export default {
                 }
             })
         },
-        getImageUrl(userId, value) {
-            if (userId === undefined || value === undefined || value === "") return undefined
-            return `${this.$axios.defaults.baseURL}/profile/${userId}/avatar/download/${value.split("~")[0]}`
+        getImageUrl(id, value) {
+            if (id === undefined || value === undefined || value === "") return undefined
+            return `${this.$axios.defaults.baseURL}/collection/${id}/cover/download/${value.split("~")[0]}`
         },
         getImagePosition(value) {
             let position = [100, 0, 0]
@@ -143,27 +143,33 @@ export default {
             data.append("position", `${position.size};${position.x};${position.y}`)
             this.$axios({
                 method: "POST",
-                url: "/profile/avatar/upload",
+                url: `/collection/${this.item.id}/cover/upload`,
                 data: data
             }).then((res) => {
                 if (res.data.status) {
-                    this.appStore.setAvatar(res.data.data)
+                    this.collection.cover = res.data.data
+                    this.appStore.addCollection(this.collection)
+                    console.log(res.data.data)
                 }
                 this.countResult++
             })
         },
-        modifyProfile() {
+        modify() {
             const position = this.itemTemp.position
             this.$axios({
                 method: "POST",
-                url: "/profile/modify",
+                url: "/collection/modify",
                 data: {
-                    nickname: this.itemTemp.text,
+                    id: this.itemTemp.id,
+                    title: this.itemTemp.text,
+                    level: this.itemTemp.level,
                     position: `${position.size};${position.x};${position.y}`
                 }
             }).then((res) => {
                 if (res.data.status) {
-                    this.appStore.setProfile(res.data.data)
+                    this.collection = res.data.data
+                    this.appStore.addCollection(this.collection)
+
                 }
                 this.countResult++
             })
@@ -171,8 +177,11 @@ export default {
         save() {
             this.countResult = 0
             this.uploadImg()
-            this.modifyProfile()
+            this.modify()
             this.closeDialog()
+        },
+        remove() {
+
         }
     },
     components: { ContentTemplate, ImageEdit, ItemEditDialog, ResourceItem }

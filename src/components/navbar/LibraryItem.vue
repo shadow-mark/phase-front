@@ -4,10 +4,10 @@
             <div id="upload_img_box" :class="playImgClass" v-if="item.type === 'upload'">
                 <img class="upload_img" :src="item.img" :alt="item.text">
             </div>
-            <div class="img" :class="playImgClass" v-else-if="item.img">
-                <WebImg :src="imgUrl" online alt="cover" />
+            <div class="img" :class="playImgClass" v-else-if="item.img !== ''">
+                <WebImg :src="imgUrl" :position="position" alt="cover" />
             </div>
-            <div :class="playImgClass" class="img empty" v-else-if="!item.img">
+            <div :class="playImgClass" class="img empty" v-else-if="item.img === ''">
                 <div class="empty_text" v-if="item.text">
                     {{ item.text[0].toUpperCase() }}
                 </div>
@@ -20,9 +20,11 @@
 </template>
 
 <script>
-import { useAppStore } from '../../stores/appStore'
+import { useAppStore } from '@/stores/appStore'
 
-import WebImg from '../WebImg.vue'
+import { getPosition } from '@/utils/Position';
+
+import WebImg from '@/components/WebImg.vue'
 
 export default {
     setup() {
@@ -63,14 +65,18 @@ export default {
             }
         },
         imgUrl() {
-            let escapeImg = this.item.img.replace(/\//g, ".")
+            if (this.item.img === '') return ""
+            const img = this.item.img.split("~")[0]
             if (this.item.type === "user") {
-                return `/profile/${this.item.id}/avatar/download/${escapeImg}`
+                return `${this.$axios.defaults.baseURL}/profile/${this.item.id}/avatar/download/${img}`
             } else if (this.item.type === "collection") {
-                return `/collection/${this.item.id}/cover/download/${escapeImg}`
+                return `${this.$axios.defaults.baseURL}/collection/${this.item.id}/cover/download/${img}`
             } else if (this.item.type === "upload") {
                 return this.item.img
             }
+        },
+        position() {
+            return getPosition(this.item.img)
         }
     },
     methods: {

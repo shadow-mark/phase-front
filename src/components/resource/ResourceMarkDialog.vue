@@ -10,12 +10,12 @@
                     <input :value="searchText" @input="handleInput" />
                 </form>
             </div>
-            <div class="add_collection_btn">
+            <div class="add_collection_btn" @click="createCollection">
                 建立新专辑
             </div>
             <div class="collection_option_box">
-                <ResourceMarkCollectionItem v-if="appStore.collections.length && stateStore.resourceMarkDialog.state"
-                    v-for="item in appStore.collections.filter((item) => item.title.indexOf(searchText) !== -1)"
+                <ResourceMarkCollectionItem v-if="collections.length && stateStore.resourceMarkDialog.state"
+                    v-for="item in collections"
                     :item="item" :defaultCheck="getDefaultCheck(item)" @add="add" @remove="remove"
                     :disabled="loading" />
                 <div v-else>
@@ -58,7 +58,10 @@ export default {
     computed: {
         change() {
             return this.collectionIdArray.length > 0
-        }
+        },
+        collections() {
+            return this.appStore.collections.filter((item) => item.title.toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1)
+        },
     },
     methods: {
         getDefaultCheck(item) {
@@ -73,6 +76,9 @@ export default {
         },
         handleInput($event) {
             this.searchText = $event.target.value
+        },
+        createCollection() {
+            this.appStore.createCollection()
         },
         add(id) {
             this.collectionIdArray.push(id)

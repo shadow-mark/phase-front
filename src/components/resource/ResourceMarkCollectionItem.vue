@@ -1,7 +1,7 @@
 <template>
     <div id="collection_item">
         <div class="item_cover">
-            <Cover :src="img" :alt="item.title" />
+            <Cover :src="img" :position="position" :alt="item.title" />
         </div>
         <div class="item_title">{{ item.title }}</div>
         <div class="item_option_box">
@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import { getPosition } from '@/utils/Position';
+
 import Cover from '@/components/Cover.vue';
 
 export default {
@@ -40,6 +42,9 @@ export default {
             const item = this.item
             if (item.cover === undefined || item.cover === '') return ''
             return `${this.$axios.defaults.baseURL}/collection/${item.id}/cover/download/${item.cover.split('~')[0]}`
+        },
+        position() {
+            return getPosition(this.item.cover)
         },
         show() {
             if (this.change) {

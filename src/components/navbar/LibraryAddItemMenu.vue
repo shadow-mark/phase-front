@@ -19,18 +19,7 @@ export default {
     },
     methods: {
         createCollection() {
-            this.$axios({
-                url: "/collection/generate"
-            }).then((res) => {
-                if (res.data.status) {
-                    let result = res.data.data
-                    this.appStore.addLibrary({
-                        type: "collection",
-                        id: result.id,
-                        title: result.title,
-                    })
-                }
-            })
+            this.appStore.createCollection()
         },
         createFolder() {
         },

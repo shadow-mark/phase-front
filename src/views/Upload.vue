@@ -19,7 +19,7 @@
             <div @click="create">创建</div>
             <div>
                 <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
-                    @remove="remove" @upload="upload" />
+                    @remove="remove" @upload="upload" isUpload/>
             </div>
             <ResourceEditDialog :item="resource" :visible="editVisible" @clickMaskListen="close" @save="save" />
             <ResourceUploadDialog :item="resource" :visible="uploadVisible" @clickMaskListen="close" @save="save" />
