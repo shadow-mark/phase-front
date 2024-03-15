@@ -102,7 +102,6 @@ export default {
         },
         handleFileChange(e) {
             const file = e.target.files[0]
-            console.log(file.type.split("/")[0])
             if (this.type === 1 && file.type.split("/")[0] !== "image") return
             else if ((this.type === 2 || this.type === 3) && (file.type.split("/")[0] !== "audio" && file.type.split("/")[0] !== "video")) return
             this.uploadFile = file

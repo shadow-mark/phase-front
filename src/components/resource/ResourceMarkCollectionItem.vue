@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { getPosition } from '@/utils/Position';
+import { getPosition } from '@/utils/PathConversion';
 
 import Cover from '@/components/Cover.vue';
 

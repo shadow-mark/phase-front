@@ -1,58 +1,195 @@
 <template>
     <div id="media_bar">
-        <div id="media_surface" v-if="mediaStore.isShow">
+        <div id="media_surface" v-if="mediaStore.show">
             <div class="img_clip">
-                <Cover :src="mediaStore.img" :position="mediaStore.position" :alt="mediaStore.nowMedia.title" />
+                <Cover :src="img" :position="position" :alt="nowMedia.title" />
             </div>
             <div id="media_detail">
-                <div class="media_title">{{ mediaStore.nowMedia.title }}</div>
+                <div class="media_title" @click="test">{{ nowMedia.title }}</div>
                 <div class="media_author">null</div>
-                <div class="masking"></div>
+            </div>
+            <div class="add_box" @click="openDialog">
+                <div v-if="nowMedia.selected.length === 0" class="img add_img"></div>
+                <div v-else class="img done_img"></div>
             </div>
         </div>
         <div id="media-controller-box">
             <div id="media-button-box">
                 <div class="center">
-                    <img src="../assets/ic_media_back.svg" @click="mediaStore.mediaBack" alt="上一首">
-                    <img src="../assets/ic_pause.svg" :hidden="mediaStore.paused" alt="暂停"
-                        @click="mediaStore.playOrPause(false)">
-                    <img src="../assets/ic_play.svg" :hidden="!mediaStore.paused" alt="播放"
-                        @click="mediaStore.playOrPause(false)">
-                    <img src="../assets/ic_media_next.svg" @click="mediaStore.mediaNext" alt="下一首">
+                    <img src="../assets/ic_media_back.svg" @click="back" alt="上一首">
+                    <img src="../assets/ic_pause.svg" :hidden="state.paused" alt="暂停" @click="pause">
+                    <img src="../assets/ic_play.svg" :hidden="!state.paused" alt="播放" @click="play">
+                    <img src="../assets/ic_media_next.svg" @click="next" alt="下一首">
                 </div>
             </div>
             <div id="media-meter-box">
                 <div class="center">
-                    <div>{{ mediaStore.currentTimeText }}</div>
-                    <input class="media-time" type="range" @change="mediaStore.timeChange" min="0" :max="100"
-                        :value="mediaStore.currentTime / mediaStore.duration * 100">
-                    <div>{{ mediaStore.durationText }}</div>
+                    <div>{{ currentTimeText }}</div>
+                    <input class="media-time" type="range" @change="timeChange" min="0" max="100"
+                        :value="state.currentTime / state.duration * 100">
+                    <div>{{ durationText }}</div>
                 </div>
             </div>
         </div>
         <div id="media-other">
+
         </div>
-        <audio @timeupdate="mediaStore.timeupdate" @canplay="mediaStore.canplay" @pause="mediaStore.paused = true"
-            @play="mediaStore.paused = false" @ended="mediaStore.overAudio" ref="media" />
+        <audio @timeupdate="timeUpdate" @canplay="canPlay" @pause="state.paused = true" @play="state.paused = false"
+            @ended="overAudio" ref="media" />
         <ResourceMarkDialog />
     </div>
 </template>
 
 <script>
+import { useStateStore } from "../stores/stateStore";
 import { useMediaStore } from "../stores/mediaStore"
+
+import { getPosition, getResourceCover, getMediaFile } from '@/utils/PathConversion';
+import { setSelected } from "../utils/ResourceUtil";
 
 import Cover from '@/components/Cover.vue';
 import ResourceMarkDialog from "./resource/ResourceMarkDialog.vue";
 
 export default {
     setup() {
+        const stateStore = useStateStore()
         const mediaStore = useMediaStore()
-        return { mediaStore }
+        return { stateStore, mediaStore }
     },
     mounted() {
         this.$nextTick(() => {
-            this.mediaStore.findMediaView(this.$refs.media)
+            this.media = this.$refs.media
         })
+    },
+    data() {
+        return {
+            media: Object,
+            option: {
+                mode: 1,
+                volume: 1,
+                full: false
+            },
+            state: {
+                paused: false,
+                currentTime: -1,
+                duration: -1
+            },
+            indexs: [],
+        }
+    },
+    computed: {
+        currentTimeText() {
+            return this.timeTextFormat(this.state.currentTime);
+        },
+        durationText() {
+            return this.timeTextFormat(this.state.duration);
+        },
+        nowMedia() {
+            if (this.mediaStore.index !== -1) {
+                return this.mediaStore.list[this.mediaStore.index]
+            }
+        },
+        img() {
+            return getResourceCover(this.nowMedia.id, this.nowMedia.cover, this.$axios)
+        },
+        position() {
+            return getPosition(this.nowMedia.cover)
+        },
+        progress() {
+            if (this.state.duration === -1) return 0;
+            else return (this.state.currentTime / this.state.duration) * 100 + 0.2;
+        },
+    },
+    methods: {
+        setMedia(value) {
+            this.media.src = getMediaFile(value, this.$axios)
+            this.play()
+        },
+        canPlay() {
+            this.state.duration = this.media.duration;
+        },
+        timeUpdate() {
+            this.state.currentTime = this.media.currentTime;
+        },
+        timeTextFormat(value) {
+            if (value === -1) {
+                return "-:--";
+            } else {
+                let hour = parseInt(value / 60 / 60);
+                let min = parseInt(value / 60 - hour * 60);
+                let second = parseInt(value % 60);
+                return (
+                    (hour != 0 ? hour + ":" : "") +
+                    (min < 10 && hour != 0 ? "0" + min : min) +
+                    ":" +
+                    (second < 10 ? "0" + second : second)
+                );
+            }
+        },
+        play() {
+            this.media.play()
+        },
+        pause() {
+            this.media.pause()
+        },
+        next() {
+            if (this.mediaStore.index < this.mediaStore.list.length) {
+                this.pause()
+                this.mediaStore.index++
+                this.indexs.push(this.mediaStore.index)
+            }
+        },
+        back() {
+            if (this.indexs.length <= 0) return
+            this.pause()
+            this.mediaStore.index = this.indexs.pop()
+        },
+        timeChange(event) {
+            this.state.currentTime = (event.target.value / 100) * this.state.duration
+            this.media.currentTime = this.state.currentTime
+        },
+        overAudio() {
+            if (this.mode === 1 || this.mode === 2) {
+                this.mediaNext();
+            } else if (this.mode === 0) {
+                this.playOrPause(false);
+            }
+        },
+        openDialog() {
+            this.stateStore.setResourceMarkDialogCallback((res) => {
+                setSelected(this.nowMedia, res)
+            })
+            this.stateStore.setResourceMarkDialogItem(this.nowMedia)
+            this.stateStore.openResourceMarkDialog()
+        }
+    },
+    watch: {
+        "mediaStore.list": {
+            handler(newVal) {
+                if (newVal.length === 0) {
+                    this.mediaStore.index = -1
+                    this.indexs = []
+                }
+                else this.next()
+            },
+            immediate: true,
+        },
+        nowMedia: {
+            handler(newVal) {
+                if (newVal.status === undefined || newVal.status === false) {
+                    this.$axios({
+                        url: `/media/get/resource/${newVal.id}`
+                    }).then((res) => {
+                        if (res.data.status) {
+                            this.mediaStore.setFileById(newVal.id, res.data.data.files)
+                            this.setMedia(newVal)
+                        }
+                    })
+                } else {
+                    this.setMedia(newVal)
+                }
+            }
+        }
     },
     components: { Cover, ResourceMarkDialog }
 }
@@ -73,15 +210,6 @@ export default {
     display: flex;
 }
 
-.masking {
-    position: absolute;
-    width: .5rem;
-    height: 100%;
-    top: 0;
-    right: 0;
-    background: linear-gradient(90deg, rgba(0, 0, 0, .2), var(--color-background));
-}
-
 .img_clip {
     border-radius: .25rem;
     height: 3.5rem;
@@ -92,7 +220,7 @@ export default {
 #media_detail {
     line-height: 1.75rem;
     padding: .75rem 0 .75rem .75rem;
-    width: calc(100% - 3.5rem);
+    max-width: calc(100% - 7rem);
 }
 
 .media_title {
@@ -112,6 +240,52 @@ export default {
     text-decoration: underline;
     color: var(--color-text);
 }
+
+.add_box {
+    width: 4rem;
+    display: flex;
+    height: 3.5rem;
+}
+
+.loading {
+    margin: auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 3px solid #fff;
+    border-top-color: transparent;
+    border-radius: 100%;
+    animation: circle infinite 0.75s linear;
+}
+
+@keyframes circle {
+    0% {
+        transform: rotate(0);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.img {
+    margin: auto;
+    background-size: contain;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+.add_img {
+    width: 1.15rem;
+    height: 1.15rem;
+    background-image: url(@/assets/ic_resource_add.svg);
+}
+
+.done_img {
+    width: 1rem;
+    height: 1rem;
+    background-image: url(@/assets/ic_resource_done.svg);
+}
+
 
 #media-controller-box {
     width: 50%;
@@ -154,7 +328,7 @@ export default {
     min-width: 22rem;
     height: 0.4rem;
     margin: 0.65rem 1rem 0 1rem;
-    background-size: v-bind("mediaStore.progress + '%'");
+    background-size: v-bind("progress + '%'");
 }
 
 .media-time:hover {

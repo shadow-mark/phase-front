@@ -48,7 +48,7 @@ export default {
     emits: ["edit", "remove", "upload", "mark"],
     methods: {
         play() {
-            this.mediaStore.addByResourceId(this.resource.id)
+            this.mediaStore.add(this.resource)
         },
         edit() {
             this.$emit("edit", this.index)

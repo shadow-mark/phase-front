@@ -65,7 +65,7 @@ export default {
     },
     methods: {
         getDefaultCheck(item) {
-            return this.stateStore.resourceMarkDialog.selected.findIndex((it) => it === item.id) >= 0
+            return this.stateStore.resourceMarkDialog.item.selected.findIndex((it) => it === item.id) >= 0
         },
         clickMaskListen() {
             this.stateStore.closeResourceMarkDialog()

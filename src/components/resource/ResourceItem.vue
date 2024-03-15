@@ -1,6 +1,6 @@
 import WebImg from '@/components/WebImg.vue';
 <template>
-    <ContextMenu class="test" ref="menu" v-show="!loading && selected.length !== 0 || isUpload || loading">
+    <ContextMenu class="test" ref="menu">
         <template #text>
             <div id="resource_item_content">
                 <div class="masking"></div>
@@ -17,8 +17,7 @@ import WebImg from '@/components/WebImg.vue';
                 </div>
                 <div class="space"></div>
                 <div class="add_box" @click="openDialog">
-                    <div v-if="loading" class="img loading"></div>
-                    <div v-else-if="selected.length === 0" class="img add_img"></div>
+                    <div v-if="item.selected.length === 0" class="img add_img"></div>
                     <div v-else class="img done_img"></div>
                 </div>
                 <DropDown class="option_box" ref="option" closeAfterSelection>
@@ -33,7 +32,7 @@ import WebImg from '@/components/WebImg.vue';
             </div>
         </template>
         <template #menu>
-            <ResourceMenu :resource="item" :index="index" :isUpload="isUpload" v-bind="$attrs" @mark="mark"/>
+            <ResourceMenu :resource="item" :index="index" :isUpload="isUpload" v-bind="$attrs" @mark="mark" />
         </template>
     </ContextMenu>
 
@@ -41,16 +40,21 @@ import WebImg from '@/components/WebImg.vue';
 
 <script>
 import { useStateStore } from "../../stores/stateStore";
+import { useMediaStore } from "../../stores/mediaStore";
+
+import { setSelected } from "../../utils/ResourceUtil";
 
 import Cover from "@/components/Cover.vue"
 import DropDown from '@/components/DropDown.vue';
 import ResourceMenu from '@/components/resource/ResourceMenu.vue'
 import ContextMenu from '@/components/menu/ContextMenu.vue';
 
+
 export default {
     setup() {
         const stateStore = useStateStore()
-        return { stateStore }
+        const mediaStore = useMediaStore()
+        return { stateStore, mediaStore }
     },
     props: {
         item: {},
@@ -58,31 +62,6 @@ export default {
         isUpload: {
             type: Boolean,
             default: false
-        }
-    },
-    mounted() {
-        this.loading = true
-        this.observer = new IntersectionObserver((entries) => {
-            if (entries[0].intersectionRatio <= 0) return
-            this.$axios({
-                url: `/collection/have/${this.item.id}`
-            }).then((res) => {
-                if (res.data.status) {
-                    this.selected = res.data.data
-                }
-                this.loading = false
-            })
-        })
-        this.observer.observe(this.$refs.menu.$el)
-    },
-    beforeUnmount() {
-        this.observer && this.observer.unobserve(this.$refs.menu.$el)
-    },
-    data() {
-        return {
-            observer: Object,
-            selected: [],
-            loading: true
         }
     },
     computed: {
@@ -113,22 +92,15 @@ export default {
     methods: {
         openDialog() {
             this.stateStore.setResourceMarkDialogCallback((res) => {
-                for (let i = 0; i < res.length; i++) {
-                    if (!res[i].status) {
-                        let index = this.selected.findIndex((it) => it === res[i].id)
-                        this.selected.splice(index, 1)
-                    } else {
-                        this.selected.push(res[i].id)
-                    }
-                }
+                setSelected(this.item, res)
+                this.mediaStore.setSelectedById(this.item.id, this.item.selected)
             })
             this.stateStore.setResourceMarkDialogItem(this.item)
-            this.stateStore.setResourceMarkDialogSelected(this.selected)
             this.stateStore.openResourceMarkDialog()
         },
         mark() {
             this.openDialog()
-        }
+        },
     },
     components: { Cover, DropDown, ResourceMenu, ContextMenu }
 }

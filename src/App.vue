@@ -15,7 +15,7 @@
         </Card>
       </div>
     </div>
-    <Media v-show="mediaStore.isShow" />
+    <Media v-show="mediaStore.show" />
   </div>
 </template>
 
@@ -44,7 +44,6 @@ export default {
   },
   mounted() {
     this.appStore.axios = this.$axios
-    this.mediaStore.axios = this.$axios
     this.reconnection()
     this.appStore.setRouter(this.$router, this.$route);
     let resize = this.$refs.resize;
@@ -121,8 +120,8 @@ export default {
   computed: {
     mainClass() {
       return {
-        'main_full': !this.mediaStore.isShow,
-        'main_filter_media': this.mediaStore.isShow
+        'main_full': !this.mediaStore.show,
+        'main_filter_media': this.mediaStore.show
       }
     }
   },

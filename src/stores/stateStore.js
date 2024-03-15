@@ -8,7 +8,6 @@ export const useStateStore = defineStore("state", {
         resourceMarkDialog: {
             state: false,
             item: undefined,
-            selected: [],
             callback: () => {},
         },
     }),
@@ -39,9 +38,6 @@ export const useStateStore = defineStore("state", {
         },
         setResourceMarkDialogItem(value) {
             this.resourceMarkDialog.item = value;
-        },
-        setResourceMarkDialogSelected(value) {
-            this.resourceMarkDialog.selected = value;
         },
         setResourceMarkDialogCallback(callback) {
             this.resourceMarkDialog.callback = callback;

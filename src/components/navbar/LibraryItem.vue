@@ -22,7 +22,7 @@
 <script>
 import { useAppStore } from '@/stores/appStore'
 
-import { getPosition } from '@/utils/Position';
+import { getPosition } from '@/utils/PathConversion';
 
 import WebImg from '@/components/WebImg.vue'
 

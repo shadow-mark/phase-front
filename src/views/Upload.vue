@@ -17,9 +17,10 @@
 
         <template #content>
             <div @click="create">创建</div>
+            <div @click="play">播放全部</div>
             <div>
                 <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
-                    @remove="remove" @upload="upload" isUpload/>
+                    @remove="remove" @upload="upload" isUpload ref="resourceItem" />
             </div>
             <ResourceEditDialog :item="resource" :visible="editVisible" @clickMaskListen="close" @save="save" />
             <ResourceUploadDialog :item="resource" :visible="uploadVisible" @clickMaskListen="close" @save="save" />
@@ -30,6 +31,7 @@
 <script>
 import { useAppStore } from '@/stores/appStore'
 import { useStateStore } from '@/stores/stateStore';
+import { useMediaStore } from '@/stores/mediaStore';
 import { useHudStore } from '@/stores/hudStore'
 
 import ContentTemplate from '@/components/ContentTemplate.vue'
@@ -43,8 +45,9 @@ export default {
     setup() {
         const appStore = useAppStore();
         const stateStore = useStateStore()
+        const mediaStore = useMediaStore()
         const hudStore = useHudStore();
-        return { appStore, stateStore, hudStore };
+        return { appStore, stateStore, mediaStore, hudStore };
     },
     mounted() {
         this.appStore.setThemeColor([145, 110, 164])
@@ -65,6 +68,13 @@ export default {
     },
     methods: {
         init() {
+            // this.stateStore.setResourceMarkDialogCallback((res) => {
+            //     const id = res.id
+            //     const selected = res.selected
+            //     const index = this.resources.findIndex((it) => it.id === id)
+            //     const el = this.$refs["resourceItem"][index]
+            //     el.setSelected(selected)
+            // })
             this.$axios({
                 url: "/resource/list/own"
             }).then((res) => {
@@ -79,6 +89,9 @@ export default {
                     this.resources.push(res.data.data)
                 }
             })
+        },
+        play() {
+            this.mediaStore.set("upload", -1, this.resources)
         },
         edit(index) {
             this.index = index
