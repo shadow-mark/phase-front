@@ -14,6 +14,7 @@
 
 <script>
 import { useHudStore } from '@/stores/hudStore';
+import HudAvatar from '@/components/hud/HudAvatar.vue';
 
 export default {
     setup() {
@@ -89,6 +90,8 @@ export default {
 }
 
 .item_time {
-    margin-right: 2rem;
+    margin-right: 2.5rem;
+    width: 6rem;
+    text-align: center;
 }
 </style>

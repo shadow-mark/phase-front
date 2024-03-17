@@ -23,7 +23,7 @@
                     <div v-else class="img done_img"></div>
                 </div>
                 <div class="item_time">
-
+                    {{ date }}
                 </div>
                 <DropDown class="option_box" ref="option" closeAfterSelection>
                     <template #text>
@@ -99,6 +99,19 @@ export default {
         },
         focus() {
             return this.$refs.menu.realTextFocus || this.$refs.option.realTextFocus
+        },
+        date() {
+            let timeStr = this.item.time
+            const updateTime = new Date(timeStr)
+            const nowTime = new Date()
+            let diff = (nowTime.getTime() - updateTime.getTime()) / 1000
+            const mode = [1, 60, 60, 24, 7, 4]
+            const suffix = ["秒","分", "时", "天", "周", "月"]
+            let index = 0
+            for (; diff > mode[index]; index++) {
+                diff /= mode[index]
+            }
+            return `${Math.round(diff)}${suffix[index - 1]}前`
         }
     },
     methods: {
@@ -206,7 +219,7 @@ export default {
 
 .item_time {
     margin: auto 0;
-    width: 3rem;
+    width: 6rem;
     text-align: center;
 }
 

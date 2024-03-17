@@ -22,12 +22,6 @@
             <div id="resource_item_box">
                 <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
                     @remove="remove" @upload="upload" isUpload ref="resourceItem" />
-                <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
-                    @remove="remove" @upload="upload" isUpload ref="resourceItem" />
-                <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
-                    @remove="remove" @upload="upload" isUpload ref="resourceItem" />
-                <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
-                    @remove="remove" @upload="upload" isUpload ref="resourceItem" />
             </div>
             <ResourceEditDialog :item="resource" :visible="editVisible" @clickMaskListen="close" @save="save" />
             <ResourceUploadDialog :item="resource" :visible="uploadVisible" @clickMaskListen="close" @save="save" />
