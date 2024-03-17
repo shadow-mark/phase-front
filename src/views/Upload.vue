@@ -18,7 +18,14 @@
         <template #content>
             <div @click="create">创建</div>
             <div @click="play">播放全部</div>
-            <div>
+            <ResourceTopBar keyframesHight="48"/>
+            <div id="resource_item_box">
+                <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
+                    @remove="remove" @upload="upload" isUpload ref="resourceItem" />
+                <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
+                    @remove="remove" @upload="upload" isUpload ref="resourceItem" />
+                <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
+                    @remove="remove" @upload="upload" isUpload ref="resourceItem" />
                 <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" @edit="edit"
                     @remove="remove" @upload="upload" isUpload ref="resourceItem" />
             </div>
@@ -40,6 +47,7 @@ import ResourceMenu from '@/components/resource/ResourceMenu.vue'
 import ResourceEditDialog from '@/components/resource/ResourceEditDialog.vue';
 import ResourceUploadDialog from '@/components/resource/ResourceUploadDialog.vue';
 import ResourceItem from '@/components/resource/ResourceItem.vue'
+import ResourceTopBar from '../components/resource/ResourceTopBar.vue';
 
 export default {
     setup() {
@@ -116,7 +124,7 @@ export default {
             this.uploadVisible = false
         }
     },
-    components: { ContentTemplate, ContextMenu, ResourceMenu, ResourceEditDialog, ResourceUploadDialog, ResourceItem }
+    components: { ContentTemplate, ContextMenu, ResourceMenu, ResourceEditDialog, ResourceUploadDialog, ResourceItem, ResourceTopBar }
 }
 </script>
 
@@ -149,5 +157,9 @@ export default {
     margin-bottom: 1rem;
     margin-top: -.5rem;
     word-break: break-word;
+}
+
+#resource_item_box {
+    padding: 0 1rem;
 }
 </style>

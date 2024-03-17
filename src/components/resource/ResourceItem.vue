@@ -1,4 +1,3 @@
-import WebImg from '@/components/WebImg.vue';
 <template>
     <ContextMenu class="test" ref="menu">
         <template #text>
@@ -15,10 +14,16 @@ import WebImg from '@/components/WebImg.vue';
                         <div class="title_text">{{ item.title }}</div>
                     </div>
                 </div>
+                <div class="item_user">
+                    {{ profile.nickname }}
+                </div>
                 <div class="space"></div>
                 <div class="add_box" @click="openDialog">
                     <div v-if="item.selected.length === 0" class="img add_img"></div>
                     <div v-else class="img done_img"></div>
+                </div>
+                <div class="item_time">
+
                 </div>
                 <DropDown class="option_box" ref="option" closeAfterSelection>
                     <template #text>
@@ -39,6 +44,7 @@ import WebImg from '@/components/WebImg.vue';
 </template>
 
 <script>
+import { useAppStore } from "../../stores/appStore";
 import { useStateStore } from "../../stores/stateStore";
 import { useMediaStore } from "../../stores/mediaStore";
 
@@ -52,9 +58,10 @@ import ContextMenu from '@/components/menu/ContextMenu.vue';
 
 export default {
     setup() {
+        const appStore = useAppStore()
         const stateStore = useStateStore()
         const mediaStore = useMediaStore()
-        return { stateStore, mediaStore }
+        return { appStore, stateStore, mediaStore }
     },
     props: {
         item: {},
@@ -62,6 +69,11 @@ export default {
         isUpload: {
             type: Boolean,
             default: false
+        },
+    },
+    data() {
+        return {
+            profile: {}
         }
     },
     computed: {
@@ -102,6 +114,15 @@ export default {
             this.openDialog()
         },
     },
+    watch: {
+        "item": {
+            handler(newVal) {
+                if (newVal.userId === undefined) return
+                this.profile = this.appStore.getUserById(newVal.userId)
+            },
+            immediate: true
+        }
+    },
     components: { Cover, DropDown, ResourceMenu, ContextMenu }
 }
 </script>
@@ -137,6 +158,7 @@ export default {
 
 .item_detail {
     display: flex;
+    width: 40%;
 }
 
 .item_index,
@@ -147,7 +169,13 @@ export default {
 }
 
 .item_index {
-    padding: 0 1rem;
+    width: 2.5rem;
+    text-align: center;
+    display: block;
+}
+
+.item_title {
+    width: calc(100% - 2.5rem)
 }
 
 .title_img {
@@ -158,12 +186,28 @@ export default {
 }
 
 .title_text {
+    width: calc(100% - 3rem);
     line-height: 2.5rem;
     margin-left: .5rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.item_user {
+    margin: auto 0;
+    margin-left: 1rem;
+    width: 20%;
 }
 
 .space {
     margin-left: auto;
+}
+
+.item_time {
+    margin: auto 0;
+    width: 3rem;
+    text-align: center;
 }
 
 .add_box,

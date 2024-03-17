@@ -16,8 +16,30 @@ export const useAppStore = defineStore("app", {
             route: Object,
         },
         nowVisitItem: Object,
+        profiles: [],
     }),
     actions: {
+        getUserById(id) {
+            let index = this.profiles.findIndex((it) => it.id === id);
+            if (index !== -1) return this.profiles[index];
+            else {
+                index = this.profiles.length;
+                this.profiles.push({ id: id });
+                this.axios({
+                    url: `/profile/get/${id}`,
+                }).then((res) => {
+                    if (res.data.status) {
+                        let data = res.data.data;
+                        let item = this.profiles[index];
+                        item.id = data.userId;
+                        item.avatar = data.avatar;
+                        item.nickname = data.nickname;
+                    }
+                });
+                console.log(this.profiles[index])
+                return this.profiles[index];
+            }
+        },
         setNowVisitItem(value) {
             this.nowVisitItem = value;
         },
@@ -69,17 +91,17 @@ export const useAppStore = defineStore("app", {
         },
         createCollection() {
             this.axios({
-                url: "/collection/generate"
+                url: "/collection/generate",
             }).then((res) => {
                 if (res.data.status) {
-                    let result = res.data.data
+                    let result = res.data.data;
                     this.addLibrary({
                         type: "collection",
                         id: result.id,
                         title: result.title,
-                    })
+                    });
                 }
-            })
+            });
         },
         addCollection(value) {
             let index = this.collections.findIndex((it) => it.id === value.id);
@@ -169,7 +191,9 @@ export const useAppStore = defineStore("app", {
         },
         avatarUrl() {
             return this.profile.avatar
-                ? `${this.axios.defaults.baseURL}/profile/${this.profile.userId}/avatar/download/${this.profile.avatar.split("~")[0]}`
+                ? `${this.axios.defaults.baseURL}/profile/${
+                      this.profile.userId
+                  }/avatar/download/${this.profile.avatar.split("~")[0]}`
                 : undefined;
         },
     },

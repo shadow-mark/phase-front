@@ -85,7 +85,8 @@ export default {
 }
 
 #content {
-    padding: 0 1rem;
+    /* padding: 0 1rem; */
+    position: relative;
 }
 
 #detail_box {

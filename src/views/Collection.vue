@@ -15,7 +15,9 @@
             {{ id }}
         </template>
         <template #content>
-            <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" />
+            <div id="resource_item_box">
+                <ResourceItem v-for="(item, index) in resources" :item="item" :index="index" :key="item" />
+            </div>
         </template>
     </ContentTemplate>
 </template>
@@ -210,5 +212,9 @@ export default {
     margin-top: -.5rem;
     word-break: break-word;
     cursor: pointer;
+}
+
+#resource_item_box {
+    padding: 0 1rem;
 }
 </style>
