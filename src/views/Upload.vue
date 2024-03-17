@@ -105,6 +105,7 @@ export default {
         },
         save(resource) {
             this.resources[this.index] = resource
+            this.mediaStore.updateValue(resource)
             this.close()
         },
         remove(index) {

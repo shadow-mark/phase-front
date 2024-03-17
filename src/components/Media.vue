@@ -150,9 +150,11 @@ export default {
         },
         overAudio() {
             if (this.mode === 1 || this.mode === 2) {
-                this.mediaNext();
+                this.next();
             } else if (this.mode === 0) {
-                this.playOrPause(false);
+                this.state.currentTime = 0
+                this.media.currentTime = 0
+                this.play()
             }
         },
         openDialog() {
@@ -188,7 +190,8 @@ export default {
                 } else {
                     this.setMedia(newVal)
                 }
-            }
+            },
+            deep: false
         }
     },
     components: { Cover, ResourceMarkDialog }

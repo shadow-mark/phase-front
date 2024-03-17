@@ -35,7 +35,7 @@ export const useMediaStore = defineStore("media", {
         },
         setFileById(id, value) {
             const index = this.list.findIndex((it) => it.id === id);
-            if (index === -1) return
+            if (index === -1) return;
             this.setFilesByIndex(index, value);
         },
         setSelectedByIndex(index, value) {
@@ -43,8 +43,22 @@ export const useMediaStore = defineStore("media", {
         },
         setSelectedById(id, value) {
             const index = this.list.findIndex((it) => it.id === id);
-            if (index === -1) return
+            if (index === -1) return;
             this.setSelectedByIndex(index, value);
+        },
+        updateValueByIndex(index, value) {
+            let item = this.list[index];
+            item.title = value.title;
+            item.type = value.type;
+            item.detail = value.detail;
+            item.selected = value.selected;
+            item.cover = value.cover;
+            item.level = value.level;
+        },
+        updateValue(value) {
+            const index = this.list.findIndex((it) => it.id === value.id);
+            if (index === -1) return;
+            this.updateValueByIndex(index, value);
         },
     },
     getters: {
