@@ -15,9 +15,8 @@
             </div>
             <div class="collection_option_box">
                 <ResourceMarkCollectionItem v-if="collections.length && stateStore.resourceMarkDialog.state"
-                    v-for="item in collections"
-                    :item="item" :defaultCheck="getDefaultCheck(item)" @add="add" @remove="remove"
-                    :disabled="loading" />
+                    v-for="item in collections" :item="item" :defaultCheck="getDefaultCheck(item)" @add="add"
+                    @remove="remove" :disabled="loading" />
                 <div v-else>
                     空
                 </div>
@@ -99,11 +98,10 @@ export default {
                 data: data
             }).then((res) => {
                 if (res.data.state) {
-                    console.log(res.data.data)
+                    this.stateStore.resourceMarkDialog.callback(res.data.data)
+                    this.stateStore.closeResourceMarkDialog()
                 }
                 this.loading = false
-                this.stateStore.resourceMarkDialog.callback(res.data.data)
-                this.stateStore.closeResourceMarkDialog()
             })
         }
     },

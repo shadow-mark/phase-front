@@ -38,7 +38,6 @@ export default {
     watch: {
         "hudStore.routerScroll": {
             handler() {
-                console.log(this.$refs.topBar.offsetTop)
                 if (this.$refs.topBar.offsetTop > this.keyframesHight) {
                     this.show = true
                 } else {

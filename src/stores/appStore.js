@@ -36,7 +36,6 @@ export const useAppStore = defineStore("app", {
                         item.nickname = data.nickname;
                     }
                 });
-                console.log(this.profiles[index])
                 return this.profiles[index];
             }
         },

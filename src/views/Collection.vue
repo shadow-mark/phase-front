@@ -151,7 +151,6 @@ export default {
                 if (res.data.status) {
                     this.collection.cover = res.data.data
                     this.appStore.addCollection(this.collection)
-                    console.log(res.data.data)
                 }
                 this.countResult++
             })
